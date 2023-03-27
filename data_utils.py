@@ -4,7 +4,7 @@ from skimage.transform import radon, iradon, iradon_sart
 import cv2
 
 ## visualization func
-def show_images_grid(images, figsize=(10, 10), cmap=None):
+def show_images_grid(images, figsize=(10, 10), cmap=None, suptitle=None):
     """show images in a grid
     """
     num_images = len(images)
@@ -13,6 +13,7 @@ def show_images_grid(images, figsize=(10, 10), cmap=None):
         num_cols += 1
     
     fig, axs = plt.subplots(num_rows, num_cols, figsize=figsize)
+    fig.suptitle(suptitle)
     for i in range(num_rows):
         for j in range(num_cols):
             index = i * num_cols + j
@@ -21,7 +22,7 @@ def show_images_grid(images, figsize=(10, 10), cmap=None):
             
             axs[i, j].imshow(images[index], cmap=cmap)
             axs[i, j].axis('off')
-            
+    
     plt.subplots_adjust(wspace=0.1, hspace=0.1)
     plt.show()
     
@@ -50,13 +51,33 @@ def add_poisson_noise(image, lam = 1.0, scale=1.0):
     return noisy_image, noise
 
 
+## dataset
+def split_dataset(dataset, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1):
+    dataset_size = len(dataset)
+    train_size = int(train_split * dataset_size)
+    val_size = int(val_split * dataset_size)
+    test_size = dataset_size - train_size - val_size
+    train_data, val_data, test_data = random_split(dataset, [train_size, val_size, test_size])
+    return train_data, val_data, test_data
+
 
 ## projection func
 def forward_projection(image, angles=None, circle=True):
     """forward projection of image
+    return scaled forward projected sinogram
     """
     if angles is None:
         angles = np.linspace(0., 180., max(image.shape), endpoint=False)
     sinogram = radon(image, theta=angles, circle=circle)
-    return sinogram
+    scaled_sinogram = ((sinogram - np.min(sinogram)) / (np.max(sinogram) - np.min(sinogram)) * 255).astype(np.uint8)
+    return scaled_sinogram
     
+def filterd_back_projection(sinogram, angles=None, circle=True, filter_name='ramp'):
+    """filtered back projection of sinogram
+    return scaled fbp recon image
+    """
+    if angles is None:
+        angles = np.linspace(0., 180., max(sinogram.shape), endpoint=False)
+    recon = iradon(sinogram, theta=angles, circle=circle, filter_name=filter_name)
+    scaled_recon = ((recon - np.min(recon)) / (np.max(recon) - np.min(recon)) * 255).astype(np.uint8)
+    return scaled_recon
