@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.transform import radon, iradon, iradon_sart
-import cv2
+
+from torch.utils.data import random_split
 
 ## visualization func
 def show_images_grid(images, figsize=(10, 10), cmap=None, suptitle=None):
@@ -54,8 +55,8 @@ def add_poisson_noise(image, lam = 1.0, scale=1.0):
 ## dataset
 def split_dataset(dataset, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1):
     dataset_size = len(dataset)
-    train_size = int(train_split * dataset_size)
-    val_size = int(val_split * dataset_size)
+    train_size = int(train_ratio * dataset_size)
+    val_size = int(val_ratio * dataset_size)
     test_size = dataset_size - train_size - val_size
     train_data, val_data, test_data = random_split(dataset, [train_size, val_size, test_size])
     return train_data, val_data, test_data
