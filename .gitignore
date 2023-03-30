@@ -130,4 +130,8 @@ dmypy.json
 
 
 # exclue data folder
-data/*
+data/BSR/* 
+data/CBSD68/*  
+data/exploration_database_and_code/*  
+data/Set12/*  
+data/Urban100/*
