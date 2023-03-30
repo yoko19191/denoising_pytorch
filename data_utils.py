@@ -6,6 +6,7 @@ from scipy.stats import poisson, norm
 import matplotlib.pyplot as plt
 
 import cv2
+from PIL import Image
 
 from skimage.transform import radon, iradon, iradon_sart
 
@@ -139,18 +140,26 @@ def forward_projection(image, angles=None, circle=True):
     """forward projection of image
     return scaled forward projected sinogram
     """
+    if isinstance(image, Image.Image):
+        image = np.array(image)
+    
     if angles is None:
         angles = np.linspace(0., 180., max(image.shape), endpoint=False)
+    
     sinogram = radon(image, theta=angles, circle=circle)
-    scaled_sinogram = ((sinogram - np.min(sinogram)) / (np.max(sinogram) - np.min(sinogram)) * 255).astype(np.uint8)
-    return scaled_sinogram
+    sinogram = ((sinogram - np.min(sinogram)) / (np.max(sinogram) - np.min(sinogram)) * 255).astype(np.uint8)
+    return sinogram
     
 def filterd_back_projection(sinogram, angles=None, circle=True, filter_name='ramp'):
     """filtered back projection of sinogram
     return scaled fbp recon image
     """
+    if isinstance(sinogram, Image.Image):
+        sinogram = np.array(sinogram)
+        
     if angles is None:
         angles = np.linspace(0., 180., max(sinogram.shape), endpoint=False)
+        
     recon = iradon(sinogram, theta=angles, circle=circle, filter_name=filter_name)
-    scaled_recon = ((recon - np.min(recon)) / (np.max(recon) - np.min(recon)) * 255).astype(np.uint8)
-    return scaled_recon
+    recon = ((recon - np.min(recon)) / (np.max(recon) - np.min(recon)) * 255).astype(np.uint8)
+    return recon
