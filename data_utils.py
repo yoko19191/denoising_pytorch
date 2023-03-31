@@ -13,7 +13,6 @@ from skimage.transform import radon, iradon, iradon_sart
 from torch.utils.data import random_split
 
 
-
 ## visualization func
 def show_images_grid(images, figsize=(10, 10), cmap=None, suptitle=None):
     """show images in a grid
@@ -38,65 +37,45 @@ def show_images_grid(images, figsize=(10, 10), cmap=None, suptitle=None):
     plt.show()
 
     
+
 def show_error_profile(image_ref, image_target, suptitle=None):
-    """show pair-image and its diff profile
-    """
+    """Show pair-image and its diff profile."""
+
+    def plot_hist(ax, img, title):
+        img_min = img.min()
+        img_max = img.max()
+        ax.hist(img.ravel(), 256, [img_min, img_max])
+        (mu, sigma) = norm.fit(img.ravel())
+        ax.set_title(f"{title} (mu:{mu:.3f} sigma:{sigma:.3f})")
+        ax.set_xlabel('Pixel Value')
+        ax.set_ylabel('Frequency')
+
+    def plot_magnitude_spectrum(ax, img, title):
+        f = np.fft.fft2(img)
+        fshift = np.fft.fftshift(f)
+        magnitude_spectrum = 20 * np.log(np.abs(fshift))
+        im = ax.imshow(magnitude_spectrum, cmap='gray')
+        ax.set_title(title)
+        ax.set_xlabel('Frequency (Hz)')
+        ax.set_ylabel('Frequency (Hz)')
+        fig.colorbar(im, ax=ax, label='Magnitude (dB)')
+
     image_diff = cv2.absdiff(image_ref, image_target)
-    # visualization
+
+    # Visualization
     fig, axs = plt.subplots(3, 3, figsize=(30, 20))
-    axs[0, 0].imshow(image_ref, cmap='gray')
-    axs[0, 0].set_title("image_ref")
-    axs[0, 1].imshow(image_target, cmap='gray')
-    axs[0, 1].set_title("image_target")
-    axs[0, 2].imshow(image_diff, cmap='gray')
-    axs[0, 2].set_title("error")
+
+    for i, (img, title) in enumerate(zip([image_ref, image_target, image_diff], ["image_ref", "image_target", "error"])):
+        axs[0, i].imshow(img, cmap='gray')
+        axs[0, i].set_title(title)
+        plot_hist(axs[1, i], img, f"pixel hist {title}")
+        plot_magnitude_spectrum(axs[2, i], img, f"Magnitude Spectrum {title}")
     
-    axs[1, 0].hist(image_ref.ravel(), 256, [0, 256])
-    (mu, sigma) = norm.fit(image_ref.ravel())
-    axs[1, 0].set_title(f"pixel hist(mu:{mu:.3f} sigma:{sigma:.3f})")
-    axs[1, 0].set_xlabel('Pixel Value')
-    axs[1, 0].set_ylabel('Frequency')
-    
-    axs[1, 1].hist(image_target.ravel(), 256, [0, 256])
-    (mu, sigma) = norm.fit(image_target.ravel())
-    axs[1, 1].set_title(f"pixel hist(mu:{mu:.3f} sigma:{sigma:.3f})")
-    axs[1, 1].set_xlabel('Pixel Value')
-    axs[1, 1].set_ylabel('Frequency')
-    
-    axs[1, 2].hist(image_diff.ravel(), 256, [0, 256])
-    (mu, sigma) = norm.fit(image_diff.ravel())
-    axs[1, 2].set_title(f"pixel hist(mu:{mu:.3f} sigma:{sigma:.3f})")
-    axs[1, 2].set_xlabel('Pixel Value')
-    axs[1, 2].set_ylabel('Frequency')
-    
-    f = np.fft.fft2(image_ref)
-    fshift = np.fft.fftshift(f)
-    magnitude_spectrum = 20*np.log(np.abs(fshift))
-    im = axs[2, 0].imshow(magnitude_spectrum, cmap='gray')
-    axs[2, 0].set_title('Magnitude Spectrum')
-    axs[2, 0].set_xlabel('Frequency (Hz)')
-    axs[2, 0].set_ylabel('Frequency (Hz)')
-    fig.colorbar(im, ax=axs[2, 0], label='Magnitude (dB)')
-    
-    f = np.fft.fft2(image_target)
-    fshift = np.fft.fftshift(f)
-    magnitude_spectrum = 20*np.log(np.abs(fshift))
-    im = axs[2, 1].imshow(magnitude_spectrum, cmap='gray')
-    axs[2, 1].set_title('Magnitude Spectrum')
-    axs[2, 1].set_xlabel('Frequency (Hz)')
-    axs[2, 1].set_ylabel('Frequency (Hz)')
-    fig.colorbar(im, ax=axs[2, 1], label='Magnitude (dB)')
-    
-    f = np.fft.fft2(image_diff)
-    fshift = np.fft.fftshift(f)
-    magnitude_spectrum = 20*np.log(np.abs(fshift))
-    im = axs[2, 2].imshow(magnitude_spectrum, cmap='gray')
-    axs[2, 2].set_title('Magnitude Spectrum')
-    axs[2, 2].set_xlabel('Frequency (Hz)')
-    axs[2, 2].set_ylabel('Frequency (Hz)')
-    fig.colorbar(im, ax=axs[2, 2], label='Magnitude (dB)')
-    
-    fig.suptitle(suptitle)
+    if suptitle is not None:
+        fig.suptitle(suptitle)
+        
+    plt.show()
+
 
 
 def show_prepared_image(output_dir, num_image=16, suptitle=None):
