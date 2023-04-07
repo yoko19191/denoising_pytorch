@@ -128,10 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# 
+.idea 
 
-# exclue data folder
-data/BSR/* 
-data/CBSD68/*  
-data/exploration_database_and_code/*  
-data/Set12/*  
-data/Urban100/*
+# exclue dataset folder
+dataset/exploration_database_and_code/*
