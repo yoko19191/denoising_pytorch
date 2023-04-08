@@ -1,3 +1,7 @@
+""" 
+--num_worker 16 --input "../dataset/Kaggle_CT Low Dose Reconstruction/Preprocessed_256x256/256/Full Dose/3mm/Sharp Kernel (D45)" --output "../dataset/Kaggle_CT Low Dose Reconstruction/prepared_recon"
+"""
+
 import sys
 import os 
 
@@ -62,7 +66,8 @@ def process_patient_slice(patient_id, patient_slices, noise_level, output_folder
         progress_bar.update(1)
 
 
-#input_folder = "../dataset/Kaggle_CT Low Dose Reconstruction/Preprocessed_256x256/256/Full Dose/3mm/Sharp Kernel (D45)"
+"""load patient's CT slices
+"""
 patient_folder_paths = get_patient_folders(input_folder)
 
 all_slices = {}
@@ -74,10 +79,8 @@ for folder_path in patient_folder_paths:
     print(f"Loaded {len(patient_slices)} CT slices from {folder_path}")
 
 
-#output_folder = "../dataset/Kaggle_CT Low Dose Reconstruction/prepared_sinogram"
-
-
-
+"""process reconstructed image in different noise_level
+"""
 noise_levels = [0, 5, 10, 15, 20, 25]
 
 total_slices = sum(len(patient_slices) for patient_slices in all_slices.values())
@@ -96,3 +99,5 @@ with ThreadPoolExecutor(max_workers=max_workers) as executor:
         task.result()
 
 progress_bar.close()
+
+
