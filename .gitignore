@@ -133,3 +133,5 @@ dmypy.json
 
 # exclue dataset folder
 dataset/exploration_database_and_code/*
+dataset/Kaggle_CT Low Dose Reconstruction/prepared_sinogram/*
+dataset/Kaggle_CT Low Dose Reconstruction/prepared_recon/*

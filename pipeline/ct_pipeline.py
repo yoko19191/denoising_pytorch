@@ -54,9 +54,11 @@ def process_patient_slice(patient_id, patient_slices, noise_level, output_folder
     for i, slice_image in enumerate(patient_slices):
         projected_slice = process.forward_projection(slice_image)
         noisy_slice = process.add_poisson_noise(projected_slice, noise_level)
+        recon_slice = process.filterd_back_projection(noisy_slice)
         
         output_file_path = os.path.join(noise_output_folder, f"noisy_slice_{i:03d}.jpg")
-        cv2.imwrite(output_file_path, noisy_slice)
+        # cv2.imwrite(output_file_path, noisy_slice)
+        cv2.imwrite(output_file_path, recon_slice)
         progress_bar.update(1)
 
 
