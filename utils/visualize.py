@@ -8,9 +8,11 @@ import matplotlib.pyplot as plt
 import cv2
 from PIL import Image
 
+import ipywidgets as widgets
+from IPython.display import display
 
 ## visualization func
-def show_images_grid(images, figsize=(10, 10), cmap=None, suptitle=None):
+def plot_images_grid(images, figsize=(10, 10), cmap=None, suptitle=None):
     """show images in a grid
     """
     num_images = len(images)
@@ -34,7 +36,7 @@ def show_images_grid(images, figsize=(10, 10), cmap=None, suptitle=None):
 
     
 
-def show_error_profile(image_ref, image_target, suptitle=None):
+def plot_error_profile(image_ref, image_target, suptitle=None):
     """Show pair-image and its diff profile."""
 
     def plot_hist(ax, img, title):
@@ -74,7 +76,7 @@ def show_error_profile(image_ref, image_target, suptitle=None):
 
 
 
-def show_prepared_image(output_dir, num_image=16, suptitle=None):
+def plot_prepared_image(output_dir, num_image=16, suptitle=None):
     """show prepared images
     """
     filenames = [f for f in os.listdir(output_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
@@ -82,7 +84,21 @@ def show_prepared_image(output_dir, num_image=16, suptitle=None):
     files_path = [os.path.join(output_dir, x) for x in np.random.choice(filenames, num_image)]
     images = [cv2.imread(x, 0) for x in files_path]
     show_images_grid(images, cmap='gray', figsize=(15, 15), suptitle=suptitle)
+
     
+
+def plot_slices(slices, figsize=(10, 10)):
+    """
+    plot slices
+    """
+    def _plot_slice(slice_idx, slices):
+        plt.figure(figsize=figsize)
+        plt.imshow(slices[slice_idx][0], cmap="gray")
+        plt.title(f"Slice Index: {slice_idx}")
+        plt.show()
+    
+    slider = widgets.IntSlider(min=0, max=len(slices)-1, step=1, value=0)
+    widgets.interact(_plot_slice, slice_idx=slider, slices=widgets.fixed(slices))
 
 
 
